@@ -9,51 +9,46 @@
   };
 
   outputs = { self, nixpkgs, flake-utils, dagger }:
-    let
-      goVersion = 22; # Change this to update the whole stack
+    flake-utils.lib.eachDefaultSystem (system:
+      let
+	pkgs = import nixpkgs {inherit system; };
+      in {
+	devShells.default = pkgs.mkShell {
+	  shellHook = ''
+	    # Setup 'k' as a 'kubectl' alias
+	    source <(kubectl completion bash)
 
-      supportedSystems = [ "x86_64-linux" "aarch64-linux" "x86_64-darwin" "aarch64-darwin" ];
-      forEachSupportedSystem = f: nixpkgs.lib.genAttrs supportedSystems (system: f {
-        pkgs = import nixpkgs {
-          inherit system;
-          overlays = [ self.overlays.default ];
-        };
+	    alias k=kubectl
+	    complete -o default -F __start_kubectl k
+	  '';
+	  COLORTERM = "truecolor";
+
+	  buildInputs = [
+	    dagger.packages.${system}.dagger
+
+	    pkgs.go
+	    pkgs.gotools
+	    pkgs.golangci-lint
+	    pkgs.kubernetes-helm
+
+	    pkgs.kind
+	    pkgs.jq
+	    pkgs.kubectl
+	  ];
+
+	  packages = [
+	    pkgs.gopls
+	    pkgs.go-task
+
+	    pkgs.protobuf
+	    pkgs.protoc-gen-go
+	    pkgs.protoc-gen-doc
+
+	    pkgs.protobuf
+	    pkgs.protoc-gen-go
+	    pkgs.protoc-gen-doc
+	 ];
+	};
       });
-    in
-    {
-      overlays.default = final: prev: {
-        go = final."go_1_${toString goVersion}";
-      };
 
-      devShells = forEachSupportedSystem ({ pkgs }: {
-        default = pkgs.mkShell {
-          shellHook = ''
-            # Setup 'k' as a 'kubectl' alias
-            source <(kubectl completion bash)
-
-            alias k=kubectl
-            complete -o default -F __start_kubectl k
-          '';
-          COLORTERM = "truecolor";
-          packages = with pkgs; [
-            go
-            gotools
-            golangci-lint
-
-            kind
-            jq
-            kubernetes-helm
-            kubectl
-            golangci-lint
-            gopls
- 
-            protobuf
-            protoc-gen-go
-            protoc-gen-doc
-
-            go-task
-          ];
-        };
-      });
-    };
 }
