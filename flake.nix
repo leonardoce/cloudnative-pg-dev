@@ -30,6 +30,7 @@
 	    pkgs.gotools
 	    pkgs.golangci-lint
 	    pkgs.kubernetes-helm
+	    pkgs.kubebuilder
 
 	    pkgs.kind
 	    pkgs.jq
