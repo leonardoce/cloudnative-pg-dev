@@ -8,10 +8,8 @@ possible.
 
 Want to give it a try?
 
-Just give a read to [this Nix
-tutorial](https://zero-to-nix.com/start/nix-develop), install
-[Nix](https://zero-to-nix.com/start/install), and:
-
+Install [Nix](https://zero-to-nix.com/start/install), and give a read to [this
+Nix tutorial](https://zero-to-nix.com/start/nix-develop). Then:
 
 ```
 nix develop github:leonardoce/cloudnative-pg-dev
